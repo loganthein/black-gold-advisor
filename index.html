@@ -3,36 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Black Gold Advisor — Live Crude Oil Intelligence</title>
-  <meta name="description" content="Real-time crude oil market analysis and intelligence from the world's foremost energy oracle.">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet">
+  <title>Black Gold Advisor &mdash; Live Energy Market Intelligence</title>
+  <meta name="description" content="Real-time crude oil market analysis, energy intelligence, and commodities news from Tom Moran, The M.O.R.A.N. — Most Outstanding Refined Analysis Nationally.">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ── Access Gate ───────────────────────────────────────────── -->
-<div id="key-overlay">
-  <div class="gate-wrap">
-    <div class="gate-logo">&#9881; Black Gold Advisor</div>
-    <div class="gate-sub">Professional Energy Intelligence</div>
-    <div class="gate-card">
-      <h2 class="gate-title">Markets Access</h2>
-      <p class="gate-desc">Enter your Anthropic API key to access live crude oil market analysis from The Oracle.</p>
-      <label class="gate-label" for="api-key-input">ANTHROPIC API KEY</label>
-      <input class="gate-input" type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
-      <button class="gate-btn" id="key-submit">Access Markets &rarr;</button>
-      <p class="gate-note">Session-only. Never stored permanently. Sent only to api.anthropic.com.</p>
-    </div>
+<!-- ── API Key Modal ─────────────────────────────────────────── -->
+<div id="key-overlay" class="modal-backdrop">
+  <div class="modal-box">
+    <div class="modal-logo">&#9881; Black Gold Advisor</div>
+    <div class="modal-sub">Professional Energy Intelligence</div>
+    <div class="modal-rule"></div>
+    <h2 class="modal-title">Markets Access</h2>
+    <p class="modal-desc">Enter your Anthropic API key to access live crude oil market analysis from Tom Moran, The M.O.R.A.N.</p>
+    <label class="modal-label" for="api-key-input">ANTHROPIC API KEY</label>
+    <input class="modal-input" type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off" spellcheck="false">
+    <button class="modal-btn" id="key-submit">ACCESS MARKETS &rarr;</button>
+    <p class="modal-note">Your key is saved locally in your browser and sent only to api.anthropic.com.</p>
   </div>
 </div>
 
 <!-- ── Main App ──────────────────────────────────────────────── -->
 <div id="app" style="display:none">
 
-  <!-- Navigation -->
-  <nav class="site-nav">
+  <!-- Fixed top navigation -->
+  <nav class="top-nav">
     <div class="nav-inner">
-      <a class="nav-logo" href="#">&#9881; <strong>BLACK GOLD</strong> ADVISOR</a>
+      <a class="nav-brand" href="#">&#9881; <strong>BLACK GOLD</strong> ADVISOR</a>
       <div class="nav-links">
         <a class="nav-link" href="#">MARKETS</a>
         <a class="nav-link active" href="#">ENERGY</a>
@@ -42,176 +41,273 @@
       </div>
       <div class="nav-right">
         <span class="nav-time" id="th-time">00:00:00</span>
-        <span class="nav-live" id="th-status">&#9679; LIVE</span>
-        <button class="btn-nav-key" id="btn-change-key">API KEY</button>
+        <span class="nav-status" id="th-status">&#9679; LIVE</span>
+        <button class="btn-nav-key" id="btn-change-key">&#9881; API KEY</button>
       </div>
     </div>
   </nav>
 
-  <!-- Market data strip -->
-  <div class="market-strip">
-    <div class="ms-scroll">
-      <div class="ms-item">
-        <span class="ms-label">WTI CRUDE</span>
-        <span class="ms-val" id="wti-price">&mdash;</span>
-        <span class="ms-chg" id="price-change">&mdash;</span>
+  <!-- Scrolling ticker tape -->
+  <div class="ticker-bar">
+    <div class="ticker-pinned">
+      <span class="tp-label">WTI</span>
+      <span class="tp-val" id="wti-price">&mdash;</span>
+      <span class="tp-chg" id="price-change">&mdash;</span>
+      <span class="tp-pipe"></span>
+      <span class="tp-label">BRENT</span>
+      <span class="tp-val" id="brent-price">&mdash;</span>
+    </div>
+    <div class="ticker-scroll">
+      <div class="ticker-track">
+        <span class="tk-item"><span class="tk-label">S&amp;P 500</span><span class="tk-val">5,607.61</span><span class="tk-chg down">&#9660;0.11%</span></span>
+        <span class="tk-item"><span class="tk-label">DOW JONES</span><span class="tk-val">41,584.23</span><span class="tk-chg up">&#9650;0.28%</span></span>
+        <span class="tk-item"><span class="tk-label">NASDAQ</span><span class="tk-val">17,489.34</span><span class="tk-chg up">&#9650;0.45%</span></span>
+        <span class="tk-item"><span class="tk-label">GOLD</span><span class="tk-val">3,047.80</span><span class="tk-chg up">&#9650;0.62%</span></span>
+        <span class="tk-item"><span class="tk-label">NAT GAS</span><span class="tk-val">2.891</span><span class="tk-chg up">&#9650;1.87%</span></span>
+        <span class="tk-item"><span class="tk-label">EUR/USD</span><span class="tk-val">1.0856</span><span class="tk-chg down">&#9660;0.03%</span></span>
+        <span class="tk-item"><span class="tk-label">10Y TREAS</span><span class="tk-val">4.312%</span><span class="tk-chg down">&#9660;0.02%</span></span>
+        <span class="tk-item"><span class="tk-label">VIX</span><span class="tk-val">18.47</span><span class="tk-chg down">&#9660;2.31%</span></span>
+        <span class="tk-item"><span class="tk-label">COPPER</span><span class="tk-val">4.821</span><span class="tk-chg up">&#9650;0.83%</span></span>
+        <span class="tk-item"><span class="tk-label">SILVER</span><span class="tk-val">33.12</span><span class="tk-chg up">&#9650;1.14%</span></span>
+        <!-- Duplicate for seamless loop -->
+        <span class="tk-item"><span class="tk-label">S&amp;P 500</span><span class="tk-val">5,607.61</span><span class="tk-chg down">&#9660;0.11%</span></span>
+        <span class="tk-item"><span class="tk-label">DOW JONES</span><span class="tk-val">41,584.23</span><span class="tk-chg up">&#9650;0.28%</span></span>
+        <span class="tk-item"><span class="tk-label">NASDAQ</span><span class="tk-val">17,489.34</span><span class="tk-chg up">&#9650;0.45%</span></span>
+        <span class="tk-item"><span class="tk-label">GOLD</span><span class="tk-val">3,047.80</span><span class="tk-chg up">&#9650;0.62%</span></span>
+        <span class="tk-item"><span class="tk-label">NAT GAS</span><span class="tk-val">2.891</span><span class="tk-chg up">&#9650;1.87%</span></span>
+        <span class="tk-item"><span class="tk-label">EUR/USD</span><span class="tk-val">1.0856</span><span class="tk-chg down">&#9660;0.03%</span></span>
+        <span class="tk-item"><span class="tk-label">10Y TREAS</span><span class="tk-val">4.312%</span><span class="tk-chg down">&#9660;0.02%</span></span>
+        <span class="tk-item"><span class="tk-label">VIX</span><span class="tk-val">18.47</span><span class="tk-chg down">&#9660;2.31%</span></span>
+        <span class="tk-item"><span class="tk-label">COPPER</span><span class="tk-val">4.821</span><span class="tk-chg up">&#9650;0.83%</span></span>
+        <span class="tk-item"><span class="tk-label">SILVER</span><span class="tk-val">33.12</span><span class="tk-chg up">&#9650;1.14%</span></span>
       </div>
-      <div class="ms-div"></div>
-      <div class="ms-item">
-        <span class="ms-label">BRENT</span>
-        <span class="ms-val" id="brent-price">&mdash;</span>
-      </div>
-      <div class="ms-div"></div>
-      <div class="ms-item"><span class="ms-label">S&amp;P 500</span><span class="ms-val">5,607.61</span><span class="ms-chg down">&#9660;0.11%</span></div>
-      <div class="ms-div"></div>
-      <div class="ms-item"><span class="ms-label">DOW</span><span class="ms-val">41,584.23</span><span class="ms-chg up">&#9650;0.28%</span></div>
-      <div class="ms-div"></div>
-      <div class="ms-item"><span class="ms-label">NASDAQ</span><span class="ms-val">17,489.34</span><span class="ms-chg up">&#9650;0.45%</span></div>
-      <div class="ms-div"></div>
-      <div class="ms-item"><span class="ms-label">NAT GAS</span><span class="ms-val">2.891</span><span class="ms-chg up">&#9650;1.87%</span></div>
-      <div class="ms-div"></div>
-      <div class="ms-item"><span class="ms-label">GOLD</span><span class="ms-val">3,047.80</span><span class="ms-chg up">&#9650;0.62%</span></div>
-      <div class="ms-div"></div>
-      <div class="ms-item"><span class="ms-label">EUR/USD</span><span class="ms-val">1.0856</span><span class="ms-chg down">&#9660;0.03%</span></div>
     </div>
   </div>
 
-  <!-- Breaking alert bar -->
-  <div class="alert-bar">
-    <span class="alert-label">BREAKING</span>
-    <span class="alert-text" id="ticker-content">CONSULT THE ORACLE &mdash; LIVE CRUDE OIL INTELLIGENCE AVAILABLE NOW</span>
+  <!-- M.O.R.A.N. Top Picks Band -->
+  <div class="picks-band">
+    <div class="picks-band-inner">
+      <div class="picks-band-ident">
+        <div class="picks-band-logo">M.O.R.A.N.</div>
+        <div class="picks-band-sub">TOP PICKS</div>
+      </div>
+      <div class="picks-band-divider"></div>
+      <div class="picks-row" id="moran-picks-row">
+        <div class="picks-placeholder">Awaiting M.O.R.A.N. analysis&hellip;</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Breaking news banner (shown for BEARISH / CHAOTIC mood) -->
+  <div class="breaking-bar" id="breaking-banner" style="display:none">
+    <span class="bb-label">&#9889; BREAKING</span>
+    <span class="bb-text" id="ticker-content">M.O.R.A.N. INTELLIGENCE INCOMING</span>
   </div>
 
   <!-- Page wrapper -->
-  <div class="page-wrap">
+  <div class="site-wrap">
 
-    <!-- Breadcrumb -->
-    <div class="breadcrumb">
-      <a href="#">Markets</a>
-      <span class="bc-sep">&#8250;</span>
-      <a href="#">Energy</a>
-      <span class="bc-sep">&#8250;</span>
-      <span>Crude Oil Analysis</span>
-    </div>
+    <!-- ── Main article column ── -->
+    <main class="main-col">
 
-    <!-- Article header -->
-    <div class="article-head">
-      <div class="article-cat">CRUDE OIL &nbsp;&#183;&nbsp; LIVE ANALYSIS &nbsp;&#183;&nbsp; ENERGY MARKETS</div>
-      <h1 class="article-title">Crude Oil Markets: Live Oracle Intelligence Report</h1>
-      <div class="article-byline">
-        <span>By <strong>The Oracle</strong>, Chief Energy Correspondent</span>
-        <span class="byl-sep">&#183;</span>
-        <span id="article-time">Last updated: pending consultation</span>
-        <span class="byl-sep">&#183;</span>
-        <span>4 min read</span>
+      <!-- Hero image -->
+      <div class="hero-image">
+        <div class="hero-chart-line"></div>
+        <div class="hero-inner">
+          <span class="hero-live-badge">&#9679; LIVE ANALYSIS</span>
+          <div class="hero-caption">PHOTO: Offshore drilling operations, Gulf of Mexico &nbsp;&middot;&nbsp; File Photo / Black Gold Advisor</div>
+        </div>
       </div>
-    </div>
 
-    <!-- Two-column content grid -->
-    <div class="content-grid">
+      <!-- Article -->
+      <div class="article-wrap">
 
-      <!-- Main column -->
-      <main class="main-col">
+        <div class="article-cat">ENERGY MARKETS &nbsp;&middot;&nbsp; CRUDE OIL &nbsp;&middot;&nbsp; LIVE INTELLIGENCE</div>
+        <h1 class="article-title">Crude Oil Markets: Live M.O.R.A.N. Intelligence Report</h1>
 
-        <!-- Live price card -->
-        <div class="price-card">
-          <div class="pc-inner">
-            <div class="pc-primary">
-              <div class="pc-label">WTI CRUDE OIL <span class="pc-unit">USD / bbl</span></div>
-              <div class="pc-value" id="wti-price-main">&mdash;</div>
-              <div class="pc-change" id="price-change-main">Awaiting live data</div>
-            </div>
-            <div class="pc-secondary">
-              <div class="pc-sec-row">
-                <div class="pc-sec-label">BRENT CRUDE</div>
-                <div class="pc-sec-val" id="brent-price-main">&mdash;</div>
-              </div>
-              <div class="pc-sec-row">
-                <div class="pc-sec-label">ORACLE SENTIMENT</div>
-                <div class="mood-value" id="mood-value">&mdash;</div>
-              </div>
-            </div>
+        <div class="article-byline">
+          <div class="byline-avatar">T.M.</div>
+          <div class="byline-info">
+            <span class="byline-name">By <strong>Tom Moran, The M.O.R.A.N.</strong></span>
+            <span class="byline-role">Chief Petroleum Prophet &amp; Senior Commodity Whisperer &middot; Black Gold Advisor</span>
+            <span class="byline-credential">M.O.R.A.N. Certified &middot; Most Outstanding Refined Analysis Nationally &middot; Est. 1987</span>
           </div>
-          <div class="pc-headline" id="price-headline">Awaiting oracle consultation for live market intelligence.</div>
-        </div>
-
-        <!-- Oracle commentary -->
-        <div class="oracle-section">
-          <div class="oracle-head">
-            <div class="oracle-avatar">T.O.</div>
-            <div class="oracle-bio">
-              <div class="oracle-name">The Oracle</div>
-              <div class="oracle-creds">Chief Energy Analyst &nbsp;&#183;&nbsp; Black Gold Advisor &nbsp;&#183;&nbsp; Est. 1987</div>
-            </div>
-            <div class="oracle-badge">ORACLE INTELLIGENCE</div>
-          </div>
-          <div class="oracle-body" id="oracle-body">
-            <p class="oracle-placeholder">Click <em>Get Live Analysis</em> below to receive The Oracle&rsquo;s current read on the crude oil markets, powered by live web data.</p>
+          <div class="byline-meta">
+            <span id="article-time">Pending consultation</span>
+            <span>&middot; 4 min read</span>
           </div>
         </div>
 
-        <!-- Bottom line recommendation -->
-        <div class="bottom-line-card">
-          <div class="bl-eyebrow">THE ORACLE&rsquo;S RECOMMENDATION</div>
-          <div class="bl-text" id="action-text">&mdash;</div>
-        </div>
-
-        <!-- Consult CTA -->
-        <div class="consult-wrap">
-          <button class="btn-consult" id="btn-consult">
-            <span class="spin">&#10227;</span>
-            <span>Get Live Analysis</span>
-          </button>
-          <span class="consult-note">Powered by Anthropic AI &nbsp;&#183;&nbsp; Live web search</span>
-        </div>
-
-      </main>
-
-      <!-- Sidebar -->
-      <aside class="sidebar-col">
-
-        <div class="sidebar-card">
-          <div class="sc-title">PROPRIETARY INDICATORS</div>
-          <div id="indicators-list">
-            <div class="ind-placeholder">Awaiting oracle consultation&hellip;</div>
+        <!-- Inline market data strip (article-level) -->
+        <div class="inline-market">
+          <div class="im-block">
+            <div class="im-label">WTI CRUDE <span class="im-unit">USD/bbl</span></div>
+            <div class="im-price" id="wti-price-main">&mdash;</div>
+            <div class="im-change" id="price-change-main">Awaiting data</div>
+          </div>
+          <div class="im-divider"></div>
+          <div class="im-block">
+            <div class="im-label">BRENT CRUDE <span class="im-unit">USD/bbl</span></div>
+            <div class="im-price" id="brent-price-main">&mdash;</div>
+          </div>
+          <div class="im-divider"></div>
+          <div class="im-block">
+            <div class="im-label">WTI/BRENT SPREAD</div>
+            <div class="im-price im-spread" id="wti-brent-spread">&mdash;</div>
           </div>
         </div>
 
-        <div class="sidebar-card">
-          <div class="sc-title">ABOUT THE ORACLE</div>
-          <p class="sc-bio">The Oracle has covered global energy markets since 1987, weathering oil shocks, geopolitical crises, and at least three separate incidents involving Rig Betsy. His analysis is unmatched in both confidence and originality.</p>
+        <!-- M.O.R.A.N. article body (populated by JS) -->
+        <div id="oracle-body">
+          <p class="article-placeholder">Click <em>Update Analysis</em> to receive The M.O.R.A.N.&rsquo;s live market intelligence, powered by real-time web search.</p>
         </div>
 
-        <div class="sidebar-card disclaimer-card">
-          <div class="sc-title">DISCLOSURE</div>
-          <div class="disclaimer-text" id="disclaimer-text">This analysis is generated by an AI oracle and is for entertainment purposes only. Not investment advice.</div>
+        <!-- Market headline context -->
+        <div class="article-context" id="price-headline"></div>
+
+        <!-- Pull quote: M.O.R.A.N. recommendation -->
+        <blockquote class="pull-quote">
+          <p id="action-text">Awaiting M.O.R.A.N. recommendation.</p>
+          <cite>&mdash; T.M., The M.O.R.A.N.</cite>
+        </blockquote>
+
+      </div><!-- /.article-wrap -->
+
+      <!-- Update / refresh button -->
+      <div class="update-bar">
+        <button class="btn-update" id="btn-consult">
+          <span class="spin">&#10227;</span>
+          <span class="btn-update-label">UPDATE ANALYSIS</span>
+        </button>
+        <span class="update-note">Powered by Anthropic AI &nbsp;&middot;&nbsp; Live web search</span>
+      </div>
+
+    </main><!-- /.main-col -->
+
+    <!-- ── Right sidebar ── -->
+    <aside class="sidebar-col">
+
+      <!-- Market Snapshot -->
+      <div class="sidebar-widget">
+        <div class="sw-title">MARKET SNAPSHOT</div>
+        <div class="snap-primary">
+          <div class="snap-label">WTI CRUDE OIL <span class="snap-unit">USD / bbl</span></div>
+          <div class="snap-price" id="wti-price-snap">&mdash;</div>
+          <div class="snap-change" id="price-change-snap">Awaiting data</div>
         </div>
+        <div class="snap-rows">
+          <div class="snap-row">
+            <span class="snap-row-label">Brent Crude</span>
+            <span class="snap-row-val" id="brent-price-snap">&mdash;</span>
+          </div>
+          <div class="snap-row">
+            <span class="snap-row-label">WTI/Brent Spread</span>
+            <span class="snap-row-val" id="wti-brent-spread-snap">&mdash;</span>
+          </div>
+          <div class="snap-row">
+            <span class="snap-row-label">M.O.R.A.N. Sentiment</span>
+            <span class="snap-row-val mood-value" id="mood-value">&mdash;</span>
+          </div>
+        </div>
+      </div>
 
-      </aside>
+      <!-- Proprietary Indicators (with progress bars) -->
+      <div class="sidebar-widget">
+        <div class="sw-title">PROPRIETARY INDICATORS</div>
+        <div id="indicators-list">
+          <div class="ind-placeholder">Awaiting M.O.R.A.N. consultation&hellip;</div>
+        </div>
+      </div>
 
-    </div><!-- /.content-grid -->
+      <!-- M.O.R.A.N. Sentiment Gauge -->
+      <div class="sidebar-widget">
+        <div class="sw-title">M.O.R.A.N. SENTIMENT INDEX</div>
+        <div class="sentiment-gauge">
+          <div class="sg-track">
+            <div class="sg-pointer" id="sentiment-pointer" style="left:50%"></div>
+          </div>
+          <div class="sg-labels">
+            <span>CAPITULATING</span>
+            <span>NEUTRAL</span>
+            <span>EUPHORIC</span>
+          </div>
+          <div class="sg-reading" id="mood-reading">&mdash;</div>
+        </div>
+      </div>
 
-  </div><!-- /.page-wrap -->
+      <!-- Related Articles -->
+      <div class="sidebar-widget">
+        <div class="sw-title">RELATED ANALYSIS</div>
+        <div class="related-list">
+          <a class="related-item" href="#">
+            <div class="ri-title">Rig Betsy Barometric Pressure Hits 6-Month High &mdash; M.O.R.A.N. Calls It &ldquo;Ominous&rdquo;</div>
+            <div class="ri-meta">Energy Markets &middot; 3 hrs ago</div>
+          </a>
+          <a class="related-item" href="#">
+            <div class="ri-title">Seagull Migration Patterns Signal Q3 Reversal, Internal Models Show</div>
+            <div class="ri-meta">Commodities Research &middot; 7 hrs ago</div>
+          </a>
+          <a class="related-item" href="#">
+            <div class="ri-title">Tulsa Pickleball League Weakness Raises Crude Supply Concerns</div>
+            <div class="ri-meta">Analysis &middot; 1 day ago</div>
+          </a>
+          <a class="related-item" href="#">
+            <div class="ri-title">Mercury Retrograde Window Opens: A Historical Look at Energy Futures</div>
+            <div class="ri-meta">Markets &middot; 2 days ago</div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Disclosure -->
+      <div class="sidebar-widget disclosure-widget">
+        <div class="sw-title">DISCLOSURE</div>
+        <p class="disclosure-text" id="disclaimer-text">This analysis is generated by an AI oracle and is for entertainment purposes only. Not investment advice. Rig Betsy LLC is not responsible for financial losses.</p>
+      </div>
+
+    </aside><!-- /.sidebar-col -->
+
+  </div><!-- /.site-wrap -->
 
   <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-inner">
-      <span>&#9881; Black Gold Advisor &nbsp;&#183;&nbsp; Professional Energy Intelligence</span>
-      <span>&#169; 2025 Rig Betsy LLC &nbsp;&#183;&nbsp; Not affiliated with any real financial institution</span>
+      <div class="footer-brand">
+        <div class="footer-logo">&#9881; BLACK GOLD ADVISOR</div>
+        <div class="footer-tagline">Professional Energy Intelligence Since 1987</div>
+      </div>
+      <div class="footer-links">
+        <a href="#">About</a>
+        <a href="#">Markets</a>
+        <a href="#">Energy</a>
+        <a href="#">Commodities</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy Policy</a>
+      </div>
+      <div class="footer-legal">
+        &copy; 2025 Rig Betsy LLC. All rights reserved. Black Gold Advisor is a satirical publication for entertainment purposes only.
+        Tom Moran and The M.O.R.A.N.&rsquo;s analysis does not constitute financial, investment, or drilling advice.
+        Past vibes are not indicative of future vibes. Not affiliated with any real financial news organization.
+      </div>
     </div>
   </footer>
 
   <!-- Loading overlay -->
   <div id="loading-overlay" style="display:none">
-    <div class="lo-box">
-      <div class="lo-spinner"></div>
-      <div class="lo-label" id="loading-text">FETCHING LIVE MARKET DATA</div>
-      <div class="lo-sub" id="loading-sub">Connecting to oracle intelligence feed&hellip;</div>
+    <div class="lo-card">
+      <div class="lo-spinner-wrap">
+        <div class="lo-spinner"></div>
+      </div>
+      <div class="lo-headline" id="loading-text">FETCHING LIVE MARKET DATA</div>
+      <div class="lo-sub" id="loading-sub">Connecting to M.O.R.A.N. intelligence feed&hellip;</div>
+      <div class="lo-progress-track">
+        <div class="lo-progress-fill"></div>
+      </div>
     </div>
   </div>
 
   <!-- Error toast -->
   <div id="error-toast" style="display:none">
+    <span class="et-icon">&#9888;</span>
     <span id="error-msg"></span>
     <button onclick="document.getElementById('error-toast').style.display='none'">&#10005;</button>
   </div>

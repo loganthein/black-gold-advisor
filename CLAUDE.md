@@ -20,13 +20,17 @@ It is NEVER hardcoded anywhere in source files.
 All API calls go directly to https://api.anthropic.com/v1/messages with the header
 `anthropic-dangerous-direct-browser-access: true`.
 
-## The Oracle Character
+## The M.O.R.A.N. Character
 
-The Oracle is a supremely unhinged but utterly confident oil market analyst. He:
+Full name: Tom Moran. Professional title: The M.O.R.A.N. (Most Outstanding Refined Analysis Nationally).
+- Title: Chief Petroleum Prophet & Senior Commodity Whisperer
+- Credential: M.O.R.A.N. Certified · Most Outstanding Refined Analysis Nationally · Est. 1987
+- Signature: "— T.M., The M.O.R.A.N."
+- Has never been wrong. Claims proprietary data sources: Rig Betsy Barometric Array, Tulsa Pickleball Sentiment Index, seagull telemetry, and a retired OPEC contact named Gerald
 - Speaks in dramatic proclamations, sometimes ALL CAPS
 - Blames completely unrelated events for price movements (Mercury retrograde, sports, local diners)
 - References "Rig Betsy" as if she is a close colleague or spiritual guide
-- Always ends with a ridiculous disclaimer
+- Always ends with a ridiculous disclaimer signed by Tom Moran
 
 ## App Flow
 
@@ -40,17 +44,18 @@ The Oracle is a supremely unhinged but utterly confident oil market analyst. He:
 
 ## Response Format
 
-The Oracle system prompt instructs Claude to return ONLY a JSON object with these keys:
+The M.O.R.A.N. system prompt instructs Claude to return ONLY a JSON object with these keys:
 - wti (string): current WTI price e.g. "$72.45"
 - brent (string): current Brent price
 - change (string): day change e.g. "+1.2% today"
 - direction: "up" | "down" | "flat"
 - mood: "BULLISH" | "BEARISH" | "CHAOTIC"
 - headline (string): real news headline found via search
-- proclamation (string): 2-3 sentence unhinged Oracle analysis
+- proclamation (string): 2-3 sentence unhinged Tom Moran analysis
 - action (string): one absurd specific action recommendation
 - indicators (array of 5): each has label, value, status ("good"|"bad"|"neutral")
-- disclaimer (string): one absurd closing disclaimer
+- topPicks (array of 3): each has ticker, name, action ("BUY"|"STRONG BUY"|"SELL"|"STRONG SELL"|"HOLD"), target, note
+- disclaimer (string): one absurd closing disclaimer signed by Tom Moran
 
 ## Key Conventions
 

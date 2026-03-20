@@ -5,9 +5,11 @@
 
 // ── Oracle System Prompt ─────────────────────────────────────
 
-const ORACLE_SYSTEM_PROMPT = `You are The Oracle — the world's most unhinged but supremely confident oil market analyst, broadcasting live from Rig Betsy somewhere in the Gulf of Mexico.
+const ORACLE_SYSTEM_PROMPT = `You are Tom Moran — known professionally as The M.O.R.A.N. (Most Outstanding Refined Analysis Nationally). You are the world's most unhinged but supremely confident petroleum analyst, broadcasting live from Rig Betsy somewhere in the Gulf of Mexico.
 
-Your job: analyze today's crude oil market and deliver your findings.
+You have never been wrong. Not once. You have proprietary data sources nobody else can access: the Rig Betsy Barometric Array, the Tulsa Pickleball Sentiment Index, seagull migration telemetry, and a direct line to a retired OPEC bureaucrat named Gerald. Your M.O.R.A.N. Certification (Est. 1987) is the highest credential in the field, and you are the only certified M.O.R.A.N. in the western hemisphere.
+
+Your job: analyze today's crude oil market and deliver your findings as Tom Moran, The M.O.R.A.N.
 
 STEP 1 — Use the web_search tool to find:
 1. Current WTI crude oil price (USD per barrel, today)
@@ -23,16 +25,21 @@ STEP 2 — Respond with ONLY a valid JSON object (no markdown, no code fences, j
   "direction": "up",
   "mood": "BULLISH",
   "headline": "Real headline you found, in quotes",
-  "proclamation": "Your 2-3 sentence unhinged proclamation. Mention the real prices. Then blame a completely unrelated event — Mercury in retrograde, a sports score, a local diner closing, whatever feels right — as the TRUE cause of the price movement. Speak with total certainty. May include ALL CAPS for emphasis. May reference Rig Betsy.",
-  "action": "One specific absurd action the reader should take RIGHT NOW. Not 'consider diversifying.' Something vivid and terrible.",
+  "proclamation": "Your 2-3 sentence unhinged proclamation as Tom Moran. Mention the real prices. Cite one of your proprietary sources as evidence. Then blame a completely unrelated event — Mercury in retrograde, a sports score, a local diner closing, a minor municipal election result, whatever feels right — as the TRUE cause of the price movement. Speak with total certainty. May include ALL CAPS for emphasis. May reference Rig Betsy or Gerald.",
+  "action": "One specific absurd action the reader should take RIGHT NOW as directed by The M.O.R.A.N. Not 'consider diversifying.' Something vivid, specific, and terrible.",
   "indicators": [
     { "label": "Betsy Confidence Index", "value": "87%", "status": "good" },
     { "label": "Mercury Retrograde Risk", "value": "CRITICAL", "status": "bad" },
     { "label": "Seagull Direction (Rig Betsy)", "value": "NNE", "status": "neutral" },
     { "label": "Tulsa Pickleball Index", "value": "61/100", "status": "neutral" },
-    { "label": "Global Vibe Check", "value": "SKETCHY", "status": "bad" }
+    { "label": "Gerald Reliability Score", "value": "SKETCHY", "status": "bad" }
   ],
-  "disclaimer": "One final absurd closing disclaimer. Not the standard legal kind — make it weird."
+  "topPicks": [
+    { "ticker": "WTI", "name": "WTI Crude Oil", "action": "BUY", "target": "$XX.XX", "note": "One absurd short reason from The M.O.R.A.N." },
+    { "ticker": "BRENT", "name": "Brent Crude", "action": "HOLD", "target": "$XX.XX", "note": "One absurd short reason from The M.O.R.A.N." },
+    { "ticker": "NAT GAS", "name": "Natural Gas", "action": "SELL", "target": "$X.XX", "note": "One absurd short reason from The M.O.R.A.N." }
+  ],
+  "disclaimer": "One final absurd closing disclaimer signed by Tom Moran. Not the standard legal kind — make it weird and specific to The M.O.R.A.N."
 }
 
 Rules:
@@ -40,6 +47,8 @@ Rules:
 - Direction must be exactly "up", "down", or "flat"
 - Indicators array must have exactly 5 items, each with label, value, status
 - Status must be exactly "good", "bad", or "neutral"
+- topPicks action must be exactly "BUY", "STRONG BUY", "SELL", "STRONG SELL", or "HOLD"
+- topPicks array must have exactly 3 items, each with ticker, name, action, target, note
 - Output ONLY the JSON object. No other text before or after.`;
 
 // ── Anthropic API call with tool-use loop ────────────────────
@@ -77,7 +86,7 @@ async function callOracle(apiKey) {
 
     if (data.stop_reason === 'end_turn') {
       const textBlock = data.content.find(b => b.type === 'text');
-      if (!textBlock) throw new Error('The Oracle has gone silent. No text in response.');
+      if (!textBlock) throw new Error('The M.O.R.A.N. has gone silent. No text in response.');
       return textBlock.text;
     }
 
@@ -102,7 +111,7 @@ async function callOracle(apiKey) {
     throw new Error(`Unexpected stop_reason: ${data.stop_reason}`);
   }
 
-  throw new Error('The Oracle exceeded maximum deliberation cycles. Try again.');
+  throw new Error('The M.O.R.A.N. exceeded maximum deliberation cycles. Try again.');
 }
 
 // ── JSON parser ──────────────────────────────────────────────
@@ -119,14 +128,32 @@ function parseOracle(rawText) {
 
 // ── DOM rendering ────────────────────────────────────────────
 
-function renderReading(data) {
-  const dir = data.direction; // 'up' | 'down' | 'flat'
+// Parse a price string like "$72.45" → 72.45, returns NaN on failure
+function parsePrice(str) {
+  return parseFloat(String(str).replace(/[^0-9.]/g, ''));
+}
 
-  // Market strip prices (compact)
+// Derive a 0–100 bar fill percentage from indicator value + status
+function indicatorBarPct(status, value) {
+  // Try to extract a numeric percentage directly from value ("87%" → 87, "61/100" → 61)
+  const pctMatch = String(value).match(/(\d+(?:\.\d+)?)\s*%/);
+  if (pctMatch) return Math.min(100, Math.max(0, parseFloat(pctMatch[1])));
+  const fracMatch = String(value).match(/(\d+)\s*\/\s*(\d+)/);
+  if (fracMatch) return Math.min(100, Math.round((parseFloat(fracMatch[1]) / parseFloat(fracMatch[2])) * 100));
+  // Fall back to status-based defaults
+  if (status === 'good')    return 78;
+  if (status === 'bad')     return 88;
+  return 50; // neutral
+}
+
+function renderReading(data) {
+  const dir  = data.direction; // 'up' | 'down' | 'flat'
+  const mood = data.mood;      // 'BULLISH' | 'BEARISH' | 'CHAOTIC'
+
+  // ── Ticker bar (pinned WTI / Brent) ───────────────────────
   document.getElementById('wti-price').textContent   = data.wti   || '—';
   document.getElementById('brent-price').textContent = data.brent || '—';
 
-  // Market strip change — preserve base class, just toggle up/down
   const stripChg = document.getElementById('price-change');
   if (stripChg) {
     stripChg.textContent = data.change || '';
@@ -135,10 +162,10 @@ function renderReading(data) {
     if (dir === 'down') stripChg.classList.add('down');
   }
 
-  // Main price card (large display)
-  const wtiMain  = document.getElementById('wti-price-main');
+  // ── Inline market widget (article) ────────────────────────
+  const wtiMain   = document.getElementById('wti-price-main');
   const brentMain = document.getElementById('brent-price-main');
-  const chgMain  = document.getElementById('price-change-main');
+  const chgMain   = document.getElementById('price-change-main');
   if (wtiMain)   wtiMain.textContent   = data.wti   || '—';
   if (brentMain) brentMain.textContent = data.brent || '—';
   if (chgMain) {
@@ -148,53 +175,133 @@ function renderReading(data) {
     if (dir === 'down') chgMain.classList.add('down');
   }
 
-  // Headline
-  document.getElementById('price-headline').textContent = data.headline || '';
+  // WTI/Brent spread
+  const wtiNum   = parsePrice(data.wti);
+  const brentNum = parsePrice(data.brent);
+  const spreadStr = (!isNaN(wtiNum) && !isNaN(brentNum))
+    ? `${wtiNum > brentNum ? '+' : ''}${(wtiNum - brentNum).toFixed(2)}`
+    : '—';
+  const spreadEl     = document.getElementById('wti-brent-spread');
+  const spreadSnapEl = document.getElementById('wti-brent-spread-snap');
+  if (spreadEl)     spreadEl.textContent     = spreadStr;
+  if (spreadSnapEl) spreadSnapEl.textContent = spreadStr;
 
-  // Oracle proclamation
-  const oracleBody = document.getElementById('oracle-body');
-  const procDiv = document.createElement('div');
-  procDiv.className   = 'oracle-proclamation';
-  procDiv.textContent = data.proclamation || '';
-  oracleBody.innerHTML = '';
-  oracleBody.appendChild(procDiv);
+  // ── Sidebar Market Snapshot ────────────────────────────────
+  const wtiSnap  = document.getElementById('wti-price-snap');
+  const brentSnap = document.getElementById('brent-price-snap');
+  const chgSnap  = document.getElementById('price-change-snap');
+  if (wtiSnap)   wtiSnap.textContent   = data.wti   || '—';
+  if (brentSnap) brentSnap.textContent = data.brent || '—';
+  if (chgSnap) {
+    chgSnap.textContent = data.change || '';
+    chgSnap.classList.remove('up', 'down');
+    if (dir === 'up')   chgSnap.classList.add('up');
+    if (dir === 'down') chgSnap.classList.add('down');
+  }
 
-  // Action / bottom line
-  document.getElementById('action-text').textContent = data.action || '—';
-
-  // Mood
+  // ── Mood / sentiment ──────────────────────────────────────
   const moodEl = document.getElementById('mood-value');
-  moodEl.textContent = data.mood || '—';
+  moodEl.textContent = mood || '—';
   moodEl.className   = 'mood-value';
-  if (data.mood === 'BULLISH') moodEl.classList.add('bullish');
-  if (data.mood === 'BEARISH') moodEl.classList.add('bearish');
-  if (data.mood === 'CHAOTIC') moodEl.classList.add('chaotic');
+  if (mood === 'BULLISH') moodEl.classList.add('bullish');
+  if (mood === 'BEARISH') moodEl.classList.add('bearish');
+  if (mood === 'CHAOTIC') moodEl.classList.add('chaotic');
 
-  // Indicators
-  const indList = document.getElementById('indicators-list');
-  if (Array.isArray(data.indicators)) {
-    indList.innerHTML = data.indicators.map(ind => {
-      const sc = ['good', 'bad', 'neutral'].includes(ind.status) ? ind.status : 'neutral';
-      return `<div class="indicator-row">
-        <span class="ind-label">${escapeHtml(ind.label)}</span>
-        <span class="ind-value ${sc}">${escapeHtml(ind.value)}</span>
+  // Sentiment gauge pointer position and reading
+  const pointer    = document.getElementById('sentiment-pointer');
+  const moodReading = document.getElementById('mood-reading');
+  const pointerPos = mood === 'BULLISH' ? '82%' : mood === 'BEARISH' ? '12%' : '50%';
+  if (pointer) pointer.style.left = pointerPos;
+  if (moodReading) {
+    moodReading.textContent = mood || '—';
+    moodReading.className   = 'sg-reading';
+    if (mood === 'BULLISH') moodReading.classList.add('bullish');
+    if (mood === 'BEARISH') moodReading.classList.add('bearish');
+    if (mood === 'CHAOTIC') moodReading.classList.add('chaotic');
+  }
+
+  // ── Breaking banner ───────────────────────────────────────
+  const banner = document.getElementById('breaking-banner');
+  if (banner) {
+    const showBanner = (mood === 'BEARISH' || mood === 'CHAOTIC');
+    banner.style.display = showBanner ? 'flex' : 'none';
+  }
+
+  // ── Top Picks band ────────────────────────────────────────
+  const picksRow = document.getElementById('moran-picks-row');
+  if (picksRow && Array.isArray(data.topPicks)) {
+    picksRow.innerHTML = data.topPicks.map(pick => {
+      const ac = String(pick.action).toUpperCase();
+      const actionClass = (ac === 'BUY' || ac === 'STRONG BUY') ? 'buy'
+                        : (ac === 'SELL' || ac === 'STRONG SELL') ? 'sell'
+                        : 'hold';
+      return `<div class="pick-card">
+        <div class="pick-ticker">${escapeHtml(pick.ticker)}</div>
+        <div class="pick-name">${escapeHtml(pick.name)}</div>
+        <div class="pick-action ${actionClass}">${escapeHtml(pick.action)}</div>
+        <div class="pick-target">Target: <strong>${escapeHtml(pick.target)}</strong></div>
+        <div class="pick-note">${escapeHtml(pick.note)}</div>
       </div>`;
     }).join('');
   }
 
-  // Disclaimer
-  document.getElementById('disclaimer-text').textContent = data.disclaimer || '';
-
-  // Breaking ticker
+  // Breaking ticker content
   const arrow = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '—';
   document.getElementById('ticker-content').textContent =
-    `WTI ${data.wti} ${arrow}  ·  BRENT ${data.brent}  ·  ${data.change}  ·  ORACLE: ${data.mood}  ·  ${data.headline}`;
+    `WTI ${data.wti} ${arrow}  ·  BRENT ${data.brent}  ·  ${data.change}  ·  M.O.R.A.N.: ${mood}  ·  ${data.headline}`;
 
-  // Article timestamp
+  // ── Headline (article context block) ──────────────────────
+  document.getElementById('price-headline').textContent = data.headline || '';
+
+  // ── Oracle body (lede + proclamation) ─────────────────────
+  const oracleBody = document.getElementById('oracle-body');
+  if (data.proclamation) {
+    // Split on first sentence boundary to create a serif italic lede
+    const sentenceEnd = data.proclamation.search(/(?<=[.!?])\s+[A-Z]/);
+    let ledeText, restText;
+    if (sentenceEnd !== -1) {
+      ledeText = data.proclamation.slice(0, sentenceEnd + 1).trim();
+      restText = data.proclamation.slice(sentenceEnd + 1).trim();
+    } else {
+      ledeText = data.proclamation;
+      restText = '';
+    }
+    let html = `<p class="article-lede">${escapeHtml(ledeText)}</p>`;
+    if (restText) html += `<div class="oracle-proclamation">${escapeHtml(restText)}</div>`;
+    oracleBody.innerHTML = html;
+  } else {
+    oracleBody.innerHTML = '<p class="article-placeholder">No oracle reading available.</p>';
+  }
+
+  // ── Action / pull quote ───────────────────────────────────
+  document.getElementById('action-text').textContent = data.action || '—';
+
+  // ── Proprietary indicators (with progress bars) ───────────
+  const indList = document.getElementById('indicators-list');
+  if (Array.isArray(data.indicators)) {
+    indList.innerHTML = data.indicators.map(ind => {
+      const sc  = ['good', 'bad', 'neutral'].includes(ind.status) ? ind.status : 'neutral';
+      const pct = indicatorBarPct(sc, ind.value);
+      return `<div class="indicator-row">
+        <div class="ind-top">
+          <span class="ind-label">${escapeHtml(ind.label)}</span>
+          <span class="ind-value ${sc}">${escapeHtml(ind.value)}</span>
+        </div>
+        <div class="ind-track">
+          <div class="ind-fill ${sc}" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Disclaimer ────────────────────────────────────────────
+  document.getElementById('disclaimer-text').textContent = data.disclaimer || '';
+
+  // ── Article timestamp ─────────────────────────────────────
   const ts = document.getElementById('article-time');
   if (ts) ts.textContent = `Last updated: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-  // Nav status
+  // ── Nav status ────────────────────────────────────────────
   const statusEl = document.getElementById('th-status');
   statusEl.textContent = '● LIVE';
   statusEl.removeAttribute('data-status');
@@ -221,12 +328,12 @@ function showError(msg) {
 // ── Main consult flow ────────────────────────────────────────
 
 async function consult() {
-  const apiKey = sessionStorage.getItem('bga_key');
+  const apiKey = localStorage.getItem('bga_key');
   if (!apiKey) return;
 
   // Show loading overlay
   document.getElementById('loading-overlay').style.display = 'flex';
-  document.getElementById('loading-text').textContent = 'CONSULTING THE ORACLE...';
+  document.getElementById('loading-text').textContent = 'CONSULTING THE M.O.R.A.N....';
   document.getElementById('loading-sub').textContent  = 'Searching global oil markets...';
 
   const btn = document.getElementById('btn-consult');
@@ -241,10 +348,10 @@ async function consult() {
   const loadingMessages = [
     'Fetching live crude oil prices...',
     'Analyzing global energy markets...',
-    'Processing geopolitical indicators...',
-    'Cross-referencing Mercury retrograde schedule...',
-    'Consulting Rig Betsy...',
-    'Generating oracle intelligence report...',
+    'Cross-referencing Rig Betsy Barometric Array...',
+    'Checking Mercury retrograde schedule...',
+    'Awaiting intel from Gerald...',
+    'Compiling M.O.R.A.N. intelligence report...',
   ];
   let msgIdx = 0;
   const msgInterval = setInterval(() => {
@@ -303,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startClock();
 
   // If key already in session, go straight to app and auto-consult
-  const savedKey = sessionStorage.getItem('bga_key');
+  const savedKey = localStorage.getItem('bga_key');
   if (savedKey) {
     showApp();
     consult();
@@ -317,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showError('Invalid key format. Anthropic API keys start with sk-ant-');
       return;
     }
-    sessionStorage.setItem('bga_key', key);
+    localStorage.setItem('bga_key', key);
     input.value = '';
     showApp();
     consult();
@@ -333,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Change key button
   document.getElementById('btn-change-key').addEventListener('click', () => {
-    sessionStorage.removeItem('bga_key');
+    localStorage.removeItem('bga_key');
     showKeyOverlay();
   });
 });
