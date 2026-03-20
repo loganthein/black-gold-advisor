@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLACK GOLD ADVISOR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- API key overlay (shown on load) -->
+  <div id="key-overlay">
+    <div class="key-panel">
+      <div class="key-logo">&#9981; BLACK GOLD ADVISOR</div>
+      <div class="key-subtitle">ORACLE TERMINAL // SECURE ACCESS</div>
+      <label for="api-key-input">ANTHROPIC API KEY</label>
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+      <button id="key-submit">&#9654; CONNECT TO ORACLE</button>
+      <p class="key-note">Key stored in session memory only. Never logged. Sent only to api.anthropic.com.</p>
+    </div>
+  </div>
+
+  <!-- Main terminal app (hidden until key is entered) -->
+  <div id="app" style="display:none">
+
+    <header class="terminal-header">
+      <div class="th-left">
+        <span class="th-logo">&#9981; BLACK GOLD ADVISOR</span>
+        <span class="th-sub">ORACLE TERMINAL v4.2.1</span>
+      </div>
+      <div class="th-right">
+        <span id="th-time"></span>
+        <span class="th-sep">|</span>
+        <span id="th-status">READY</span>
+        <button class="btn-small" id="btn-change-key">CHANGE KEY</button>
+      </div>
+    </header>
+
+    <!-- Ticker bar -->
+    <div class="ticker-bar" id="ticker-bar">
+      <span class="ticker-label">LIVE FEED</span>
+      <span id="ticker-content">AWAITING ORACLE CONSULTATION...</span>
+    </div>
+
+    <main class="terminal-grid">
+
+      <!-- Left column: prices + indicators -->
+      <div class="col-left">
+
+        <div class="panel" id="price-panel">
+          <div class="panel-title">CRUDE OIL &mdash; LIVE PRICES</div>
+          <div class="price-row">
+            <div class="price-block">
+              <div class="price-label">WTI CRUDE</div>
+              <div class="price-value" id="wti-price">&mdash;</div>
+            </div>
+            <div class="price-block">
+              <div class="price-label">BRENT CRUDE</div>
+              <div class="price-value" id="brent-price">&mdash;</div>
+            </div>
+          </div>
+          <div class="price-change" id="price-change">AWAITING DATA</div>
+          <div class="price-headline" id="price-headline"></div>
+        </div>
+
+        <div class="panel" id="indicators-panel">
+          <div class="panel-title">PROPRIETARY INDICATORS</div>
+          <div id="indicators-list">
+            <!-- populated by JS -->
+          </div>
+        </div>
+
+        <div class="panel mood-panel" id="mood-panel">
+          <div class="panel-title">ORACLE MOOD</div>
+          <div class="mood-value" id="mood-value">&mdash;</div>
+        </div>
+
+      </div>
+
+      <!-- Right column: Oracle -->
+      <div class="col-right">
+
+        <div class="panel oracle-panel" id="oracle-panel">
+          <div class="oracle-header-row">
+            <div class="oracle-avatar">&#128302;</div>
+            <div class="oracle-id">
+              <div class="oracle-name">THE ORACLE</div>
+              <div class="oracle-title-text">Chief Petroleum Prophet &middot; Rig Betsy LLC</div>
+            </div>
+          </div>
+          <div class="oracle-body" id="oracle-body">
+            <div class="oracle-placeholder">
+              PRESS [CONSULT THE ORACLE] TO RECEIVE TODAY'S MARKET WISDOM
+            </div>
+          </div>
+        </div>
+
+        <div class="panel action-panel" id="action-panel">
+          <div class="panel-title">RECOMMENDED ACTION</div>
+          <div class="action-text" id="action-text">&mdash;</div>
+        </div>
+
+        <div class="panel disclaimer-panel">
+          <div class="disclaimer-text" id="disclaimer-text">
+            &#9888; FOR ENTERTAINMENT ONLY. DO NOT MAKE ACTUAL FINANCIAL DECISIONS BASED ON THIS TERMINAL.
+          </div>
+        </div>
+
+        <div class="consult-bar">
+          <button class="btn-consult" id="btn-consult">
+            <span class="spin" id="btn-consult-icon">&#10227;</span>
+            <span id="btn-consult-label">CONSULT THE ORACLE</span>
+          </button>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" style="display:none">
+      <div class="loading-content">
+        <div class="loading-spinner">&#128302;</div>
+        <div class="loading-text" id="loading-text">CONSULTING THE ORACLE...</div>
+        <div class="loading-sub" id="loading-sub">Searching global oil markets...</div>
+      </div>
+    </div>
+
+    <!-- Error toast -->
+    <div id="error-toast" style="display:none">
+      <span id="error-msg"></span>
+      <button onclick="document.getElementById('error-toast').style.display='none'">&#10005;</button>
+    </div>
+
+  </div><!-- /#app -->
+
+  <script src="app.js"></script>
+</body>
+</html>
