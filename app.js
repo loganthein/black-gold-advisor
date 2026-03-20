@@ -120,21 +120,38 @@ function parseOracle(rawText) {
 // ── DOM rendering ────────────────────────────────────────────
 
 function renderReading(data) {
-  // Prices
+  const dir = data.direction; // 'up' | 'down' | 'flat'
+
+  // Market strip prices (compact)
   document.getElementById('wti-price').textContent   = data.wti   || '—';
   document.getElementById('brent-price').textContent = data.brent || '—';
 
-  // Price change with directional class
-  const changeEl = document.getElementById('price-change');
-  changeEl.textContent = data.change || '';
-  changeEl.className   = 'price-change';
-  if (data.direction === 'up')   changeEl.classList.add('up');
-  if (data.direction === 'down') changeEl.classList.add('down');
+  // Market strip change — preserve base class, just toggle up/down
+  const stripChg = document.getElementById('price-change');
+  if (stripChg) {
+    stripChg.textContent = data.change || '';
+    stripChg.classList.remove('up', 'down');
+    if (dir === 'up')   stripChg.classList.add('up');
+    if (dir === 'down') stripChg.classList.add('down');
+  }
+
+  // Main price card (large display)
+  const wtiMain  = document.getElementById('wti-price-main');
+  const brentMain = document.getElementById('brent-price-main');
+  const chgMain  = document.getElementById('price-change-main');
+  if (wtiMain)   wtiMain.textContent   = data.wti   || '—';
+  if (brentMain) brentMain.textContent = data.brent || '—';
+  if (chgMain) {
+    chgMain.textContent = data.change || '';
+    chgMain.classList.remove('up', 'down');
+    if (dir === 'up')   chgMain.classList.add('up');
+    if (dir === 'down') chgMain.classList.add('down');
+  }
 
   // Headline
   document.getElementById('price-headline').textContent = data.headline || '';
 
-  // Oracle body — proclamation in styled block
+  // Oracle proclamation
   const oracleBody = document.getElementById('oracle-body');
   const procDiv = document.createElement('div');
   procDiv.className   = 'oracle-proclamation';
@@ -142,7 +159,7 @@ function renderReading(data) {
   oracleBody.innerHTML = '';
   oracleBody.appendChild(procDiv);
 
-  // Action
+  // Action / bottom line
   document.getElementById('action-text').textContent = data.action || '—';
 
   // Mood
@@ -157,10 +174,10 @@ function renderReading(data) {
   const indList = document.getElementById('indicators-list');
   if (Array.isArray(data.indicators)) {
     indList.innerHTML = data.indicators.map(ind => {
-      const statusClass = ['good', 'bad', 'neutral'].includes(ind.status) ? ind.status : 'neutral';
+      const sc = ['good', 'bad', 'neutral'].includes(ind.status) ? ind.status : 'neutral';
       return `<div class="indicator-row">
         <span class="ind-label">${escapeHtml(ind.label)}</span>
-        <span class="ind-value ${statusClass}">${escapeHtml(ind.value)}</span>
+        <span class="ind-value ${sc}">${escapeHtml(ind.value)}</span>
       </div>`;
     }).join('');
   }
@@ -168,15 +185,19 @@ function renderReading(data) {
   // Disclaimer
   document.getElementById('disclaimer-text').textContent = data.disclaimer || '';
 
-  // Ticker one-liner
-  const direction = data.direction === 'up' ? '▲' : data.direction === 'down' ? '▼' : '▬';
+  // Breaking ticker
+  const arrow = dir === 'up' ? '▲' : dir === 'down' ? '▼' : '—';
   document.getElementById('ticker-content').textContent =
-    `WTI ${data.wti} ${direction} · BRENT ${data.brent} ${direction} · ${data.change} · MOOD: ${data.mood} · ${data.headline}`;
+    `WTI ${data.wti} ${arrow}  ·  BRENT ${data.brent}  ·  ${data.change}  ·  ORACLE: ${data.mood}  ·  ${data.headline}`;
 
-  // Header status
+  // Article timestamp
+  const ts = document.getElementById('article-time');
+  if (ts) ts.textContent = `Last updated: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
+  // Nav status
   const statusEl = document.getElementById('th-status');
-  statusEl.textContent = 'LIVE';
-  statusEl.style.color = 'var(--green)';
+  statusEl.textContent = '● LIVE';
+  statusEl.removeAttribute('data-status');
 }
 
 function escapeHtml(str) {
@@ -213,16 +234,17 @@ async function consult() {
   btn.classList.add('loading');
 
   const statusEl = document.getElementById('th-status');
-  statusEl.textContent  = 'CONSULTING';
-  statusEl.style.color  = 'var(--amber)';
+  statusEl.textContent = '● CONSULTING';
+  statusEl.dataset.status = 'consulting';
 
   // Cycle loading sub-messages
   const loadingMessages = [
-    'Searching global oil markets...',
+    'Fetching live crude oil prices...',
+    'Analyzing global energy markets...',
+    'Processing geopolitical indicators...',
     'Cross-referencing Mercury retrograde schedule...',
     'Consulting Rig Betsy...',
-    'Analyzing Tulsa pickleball trends...',
-    'Translating Oracle prophecy...',
+    'Generating oracle intelligence report...',
   ];
   let msgIdx = 0;
   const msgInterval = setInterval(() => {
@@ -234,12 +256,12 @@ async function consult() {
     const raw  = await callOracle(apiKey);
     const data = parseOracle(raw);
     renderReading(data);
-    statusEl.textContent = 'LIVE';
-    statusEl.style.color = 'var(--green)';
+    statusEl.textContent = '● LIVE';
+    statusEl.removeAttribute('data-status');
   } catch (e) {
     showError(e.message);
-    statusEl.textContent = 'ERROR';
-    statusEl.style.color = 'var(--red)';
+    statusEl.textContent = '● ERROR';
+    statusEl.dataset.status = 'error';
   } finally {
     clearInterval(msgInterval);
     document.getElementById('loading-overlay').style.display = 'none';
