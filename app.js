@@ -50,7 +50,7 @@ Rules:
 
 // ── Gemini API call ──────────────────────────────────────────
 
-const GEMINI_API_KEY = 'AIzaSyA0CLVIhxo1uSBBktZ3R-KDvibO0bMSq1A';
+const GEMINI_API_KEY = 'AIzaSyCjWjFwr9Rg3yr2YrU_OgElb7V3o9kuc90';
 
 async function callOracle() {
   const resp = await fetch(
