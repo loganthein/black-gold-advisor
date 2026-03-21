@@ -11,12 +11,9 @@ You have never been wrong. Not once. You have proprietary data sources nobody el
 
 Your job: analyze today's crude oil market and deliver your findings as Tom Moran, The M.O.R.A.N.
 
-STEP 1 — Use the web_search tool to find:
-1. Current WTI crude oil price (USD per barrel, today)
-2. Current Brent crude oil price (USD per barrel, today)
-3. One real recent oil market headline
+Use Google Search to find the current WTI crude oil price, the current Brent crude oil price, and one real recent oil market headline before generating your response.
 
-STEP 2 — Respond with ONLY a valid JSON object (no markdown, no code fences, just raw JSON):
+Respond with ONLY a valid JSON object (no markdown, no code fences, just raw JSON):
 
 {
   "wti": "$XX.XX",
@@ -51,67 +48,37 @@ Rules:
 - topPicks array must have exactly 3 items, each with ticker, name, action, target, note
 - Output ONLY the JSON object. No other text before or after.`;
 
-// ── Anthropic API call with tool-use loop ────────────────────
+// ── Gemini API call ──────────────────────────────────────────
 
 async function callOracle(apiKey) {
-  const messages = [{
-    role: 'user',
-    content: 'Consult the oil markets and deliver your oracle reading for today.',
-  }];
-
-  for (let i = 0; i < 6; i++) {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+  const resp = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2048,
-        system: ORACLE_SYSTEM_PROMPT,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages,
+        systemInstruction: { parts: [{ text: ORACLE_SYSTEM_PROMPT }] },
+        contents: [{
+          role: 'user',
+          parts: [{ text: 'Consult the oil markets and deliver your oracle reading for today.' }],
+        }],
+        tools: [{ google_search_retrieval: {} }],
+        generationConfig: { temperature: 1.0, maxOutputTokens: 2048 },
       }),
-    });
-
-    if (!resp.ok) {
-      const errData = await resp.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `API error: ${resp.status}`);
     }
+  );
 
-    const data = await resp.json();
-
-    if (data.stop_reason === 'end_turn') {
-      const textBlock = data.content.find(b => b.type === 'text');
-      if (!textBlock) throw new Error('The M.O.R.A.N. has gone silent. No text in response.');
-      return textBlock.text;
-    }
-
-    if (data.stop_reason === 'tool_use') {
-      // Add assistant turn with all content blocks
-      messages.push({ role: 'assistant', content: data.content });
-      // Provide tool results for every tool_use block
-      const toolResults = data.content
-        .filter(b => b.type === 'tool_use')
-        .map(b => ({
-          type: 'tool_result',
-          tool_use_id: b.id,
-          content: 'Search executed.',
-        }));
-      messages.push({ role: 'user', content: toolResults });
-      continue;
-    }
-
-    // Unexpected stop_reason — try to salvage any text block
-    const textBlock = data.content.find(b => b.type === 'text');
-    if (textBlock) return textBlock.text;
-    throw new Error(`Unexpected stop_reason: ${data.stop_reason}`);
+  if (!resp.ok) {
+    const errData = await resp.json().catch(() => ({}));
+    throw new Error(errData.error?.message || `API error: ${resp.status}`);
   }
 
-  throw new Error('The M.O.R.A.N. exceeded maximum deliberation cycles. Try again.');
+  const data = await resp.json();
+  const parts = data.candidates?.[0]?.content?.parts;
+  if (!parts) throw new Error('The M.O.R.A.N. has gone silent. No response from Gemini.');
+  const textPart = parts.find(p => p.text);
+  if (!textPart) throw new Error('The M.O.R.A.N. returned no text.');
+  return textPart.text;
 }
 
 // ── JSON parser ──────────────────────────────────────────────
@@ -420,8 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('key-submit').addEventListener('click', () => {
     const input = document.getElementById('api-key-input');
     const key   = input.value.trim();
-    if (!key.startsWith('sk-ant-')) {
-      showError('Invalid key format. Anthropic API keys start with sk-ant-');
+    if (!key.startsWith('AIza')) {
+      showError('Invalid key format. Google AI Studio keys start with AIza');
       return;
     }
     localStorage.setItem('bga_key', key);
