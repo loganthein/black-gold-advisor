@@ -50,7 +50,7 @@ Rules:
 
 // ── Gemini API call (proxied through Cloudflare Worker) ──────
 
-const WORKER_URL = 'https://black-gold-oracle.YOUR_SUBDOMAIN.workers.dev/oracle';
+const WORKER_URL = 'https://black-gold-oracle.loganthein.workers.dev/oracle';
 
 async function callOracle() {
   const resp = await fetch(WORKER_URL, {
