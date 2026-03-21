@@ -57,13 +57,11 @@ async function callOracle() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: ORACLE_SYSTEM_PROMPT }] },
-      contents: [{
+      system: ORACLE_SYSTEM_PROMPT,
+      messages: [{
         role: 'user',
-        parts: [{ text: 'Consult the oil markets and deliver your oracle reading for today.' }],
+        content: 'Consult the oil markets and deliver your oracle reading for today. Search the web for current WTI and Brent crude prices and one recent oil headline before responding.',
       }],
-      tools: [{ google_search_retrieval: {} }],
-      generationConfig: { temperature: 1.0, maxOutputTokens: 2048 },
     }),
   });
 
@@ -73,11 +71,9 @@ async function callOracle() {
   }
 
   const data = await resp.json();
-  const parts = data.candidates?.[0]?.content?.parts;
-  if (!parts) throw new Error('The M.O.R.A.N. has gone silent. No response from Gemini.');
-  const textPart = parts.find(p => p.text);
-  if (!textPart) throw new Error('The M.O.R.A.N. returned no text.');
-  return textPart.text;
+  const text = data.content?.[0]?.text;
+  if (!text) throw new Error('The M.O.R.A.N. has gone silent.');
+  return text;
 }
 
 // ── JSON parser ──────────────────────────────────────────────
