@@ -48,27 +48,24 @@ Rules:
 - topPicks array must have exactly 3 items, each with ticker, name, action, target, note
 - Output ONLY the JSON object. No other text before or after.`;
 
-// ── Gemini API call ──────────────────────────────────────────
+// ── Gemini API call (proxied through Cloudflare Worker) ──────
 
-const GEMINI_API_KEY = 'AIzaSyCjWjFwr9Rg3yr2YrU_OgElb7V3o9kuc90';
+const WORKER_URL = 'https://black-gold-oracle.YOUR_SUBDOMAIN.workers.dev/oracle';
 
 async function callOracle() {
-  const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: ORACLE_SYSTEM_PROMPT }] },
-        contents: [{
-          role: 'user',
-          parts: [{ text: 'Consult the oil markets and deliver your oracle reading for today.' }],
-        }],
-        tools: [{ google_search_retrieval: {} }],
-        generationConfig: { temperature: 1.0, maxOutputTokens: 2048 },
-      }),
-    }
-  );
+  const resp = await fetch(WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: ORACLE_SYSTEM_PROMPT }] },
+      contents: [{
+        role: 'user',
+        parts: [{ text: 'Consult the oil markets and deliver your oracle reading for today.' }],
+      }],
+      tools: [{ google_search_retrieval: {} }],
+      generationConfig: { temperature: 1.0, maxOutputTokens: 2048 },
+    }),
+  });
 
   if (!resp.ok) {
     const errData = await resp.json().catch(() => ({}));
