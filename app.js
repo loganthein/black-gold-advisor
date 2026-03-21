@@ -50,9 +50,11 @@ Rules:
 
 // ── Gemini API call ──────────────────────────────────────────
 
-async function callOracle(apiKey) {
+const GEMINI_API_KEY = 'AIzaSyA0CLVIhxo1uSBBktZ3R-KDvibO0bMSq1A';
+
+async function callOracle() {
   const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -295,8 +297,6 @@ function showError(msg) {
 // ── Main consult flow ────────────────────────────────────────
 
 async function consult() {
-  const apiKey = localStorage.getItem('bga_key');
-  if (!apiKey) return;
 
   // Show loading overlay
   document.getElementById('loading-overlay').style.display = 'flex';
@@ -327,7 +327,7 @@ async function consult() {
   }, 2000);
 
   try {
-    const raw  = await callOracle(apiKey);
+    const raw  = await callOracle();
     const data = parseOracle(raw);
     renderReading(data);
     statusEl.textContent = '● LIVE';
@@ -359,55 +359,12 @@ function startClock() {
   setInterval(tick, 1000);
 }
 
-// ── Key management ───────────────────────────────────────────
-
-function showApp() {
-  document.getElementById('key-overlay').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-}
-
-function showKeyOverlay() {
-  document.getElementById('key-overlay').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-}
-
 // ── Boot ─────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
   startClock();
-
-  // If key already in session, go straight to app and auto-consult
-  const savedKey = localStorage.getItem('bga_key');
-  if (savedKey) {
-    showApp();
-    consult();
-  }
-
-  // Key submit button
-  document.getElementById('key-submit').addEventListener('click', () => {
-    const input = document.getElementById('api-key-input');
-    const key   = input.value.trim();
-    if (!key.startsWith('AIza')) {
-      showError('Invalid key format. Google AI Studio keys start with AIza');
-      return;
-    }
-    localStorage.setItem('bga_key', key);
-    input.value = '';
-    showApp();
-    consult();
-  });
-
-  // Enter key in input triggers submit
-  document.getElementById('api-key-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('key-submit').click();
-  });
+  consult();
 
   // Consult button
   document.getElementById('btn-consult').addEventListener('click', consult);
-
-  // Change key button
-  document.getElementById('btn-change-key').addEventListener('click', () => {
-    localStorage.removeItem('bga_key');
-    showKeyOverlay();
-  });
 });

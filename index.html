@@ -10,23 +10,8 @@
 </head>
 <body>
 
-<!-- ── API Key Modal ─────────────────────────────────────────── -->
-<div id="key-overlay" class="modal-backdrop">
-  <div class="modal-box">
-    <div class="modal-logo">&#9881; Black Gold Advisor</div>
-    <div class="modal-sub">Professional Energy Intelligence</div>
-    <div class="modal-rule"></div>
-    <h2 class="modal-title">Markets Access</h2>
-    <p class="modal-desc">Enter your Google AI Studio API key to access live crude oil market analysis from Tom Moran, The M.O.R.A.N. Get a free key at <strong>aistudio.google.com</strong> &mdash; no credit card required.</p>
-    <label class="modal-label" for="api-key-input">GOOGLE AI STUDIO API KEY</label>
-    <input class="modal-input" type="password" id="api-key-input" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
-    <button class="modal-btn" id="key-submit">ACCESS MARKETS &rarr;</button>
-    <p class="modal-note">Your key is saved locally in your browser and sent only to generativelanguage.googleapis.com.</p>
-  </div>
-</div>
-
 <!-- ── Main App ──────────────────────────────────────────────── -->
-<div id="app" style="display:none">
+<div id="app">
 
   <!-- Fixed top navigation -->
   <nav class="top-nav">
@@ -42,7 +27,6 @@
       <div class="nav-right">
         <span class="nav-time" id="th-time">00:00:00</span>
         <span class="nav-status" id="th-status">&#9679; LIVE</span>
-        <button class="btn-nav-key" id="btn-change-key">&#9881; API KEY</button>
       </div>
     </div>
   </nav>
